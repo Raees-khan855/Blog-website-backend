@@ -1,46 +1,69 @@
 const express = require('express');
 const cors = require('cors');
-const mysql = require('mysql2');
-const path=require('path')
+const mongoose = require('mongoose');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json()); // for handling JSON body
 
-// 🔁 Create a pool
-const pool = mysql.createPool({
-  host: '127.0.0.1',
-  user: 'root',
-  password: 'Raees6908090',
-  database: 'Blogs',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+// 📦 Connect to MongoDB
+mongoose.connect('mongodb+srv://dbBlogs:Raees6908090@cluster0.dqzbkkf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch(err => console.error('MongoDB connection error:', err));
+
+// 🛠 Define Blog Schema and Model
+const blogSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+  image: String, // If you are using an image upload
+  createdAt: { type: Date, default: Date.now }
 });
 
-app.use('/uploads', express.static('uploads'));
+const Blog = mongoose.model('Blog', blogSchema);
+
+// Serve static files (for images, uploads, etc.)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // 📦 Get all blogs
-app.get('/api/blogs', (req, res) => {
-  pool.query('SELECT * FROM blogs', (err, results) => {
-    if (err) {
-      console.error('DB error:', err);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    res.json(results);
-  });
+app.get('/api/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find();
+    res.json(blogs);
+  } catch (error) {
+    console.error('DB error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // 📦 Get blog by ID
-app.get('/api/blogs/:id', (req, res) => {
+app.get('/api/blogs/:id', async (req, res) => {
   const blogId = req.params.id;
-  pool.query('SELECT * FROM blogs WHERE id = ?', [blogId], (err, result) => {
-    if (err) return res.status(500).send(err);
-    if (result.length === 0) return res.status(404).send({ message: 'Blog not found' });
-    res.send(result[0]);
-  });
+  try {
+    const blog = await Blog.findById(blogId);
+    if (!blog) return res.status(404).send({ message: 'Blog not found' });
+    res.json(blog);
+  } catch (error) {
+    console.error('Error fetching blog:', error);
+    res.status(500).send(error);
+  }
+});
+
+// ➕ POST a new blog
+app.post('/api/blogs', async (req, res) => {
+  const { title, content, image } = req.body;
+  try {
+    const newBlog = new Blog({ title, content, image });
+    await newBlog.save();
+    res.status(201).json(newBlog);
+  } catch (error) {
+    console.error('Error creating blog:', error);
+    res.status(500).json({ error: 'Could not create blog' });
+  }
 });
 
 // 🚀 Start server
-app.listen(5000, () => {
-  console.log('✅ Server running on http://localhost:5000');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
