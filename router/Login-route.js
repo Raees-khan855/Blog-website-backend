@@ -1,7 +1,7 @@
 // routes/Login.js
 const express = require("express");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const Login = express.Router();
 
@@ -18,7 +18,6 @@ Login.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({ success: false, message: "Email and password are required" });
     }
