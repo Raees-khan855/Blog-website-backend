@@ -6,6 +6,12 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+
+app.use(cors({
+  origin: 'https://raees-khan855.github.io/Blog-website/', // Your GitHub Pages URL
+  credentials: true
+}));
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
