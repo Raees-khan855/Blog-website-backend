@@ -1,20 +1,18 @@
 const express = require('express');
 const blogs = express.Router();
 const mongoose = require("mongoose");
-const path = require('path');
 
 // Blog Schema
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
+  description: { type: String, required: true },
   image: String,
   createdAt: { type: Date, default: Date.now }
 });
 
 const Blog = mongoose.model('Blog', blogSchema);
 
-// Static path for uploads
-blogs.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // GET all blogs -> GET /api/blogs
 blogs.get('/', async (req, res) => {
@@ -39,21 +37,14 @@ blogs.get('/:id', async (req, res) => {
   }
 });
 
-// POST new blog -> POST /api/blogs
+// POST: Create new blog
 blogs.post('/', async (req, res) => {
-  const { title, content, image } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).json({ error: 'Title and content are required' });
-  }
-
   try {
-    const newBlog = new Blog({ title, content, image });
-    await newBlog.save();
-    res.status(201).json(newBlog);
-  } catch (error) {
-    console.error('Save error:', error);
-    res.status(500).json({ error: 'Could not create blog' });
+    const blog = new Blog(req.body);
+    await blog.save();
+    res.status(201).json(blog);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to post blog." });
   }
 });
 
