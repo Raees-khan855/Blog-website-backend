@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 
-const Login = express.Router();
+const login = express.Router();
 
 // Setup rate limiter before defining the route
 const loginLimiter = rateLimit({
@@ -13,7 +13,7 @@ const loginLimiter = rateLimit({
   message: "Too many login attempts. Please try again later.",
 });
 
-Login.post("/login", loginLimiter, async (req, res) => {
+login.post("/login", loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -31,7 +31,7 @@ Login.post("/login", loginLimiter, async (req, res) => {
       return res.json({ success: false, message: "Incorrect password" });
     }
 
-    const token = jwt.sign({ userId: user._id }, 'your_secret_key', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, 'Raees6908090', { expiresIn: '1h' });
 
     res.status(200).json({
       success: true,
@@ -46,4 +46,4 @@ Login.post("/login", loginLimiter, async (req, res) => {
   }
 });
 
-module.exports = Login;
+module.exports = login;
