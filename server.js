@@ -11,7 +11,7 @@ const app = express();
 
 // Enable CORS for Netlify frontend
 const allowedOrigins = [
-  'http://localhost:3000',
+  'http://localhost:5000',
   'https://raees-websites.netlify.app',
   'https://raees-khan855.github.io'
 ];
