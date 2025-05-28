@@ -10,21 +10,9 @@ const app = express();
 // ====== MIDDLEWARE SETUP ====== //
 
 // Enable CORS for Netlify frontend
-const allowedOrigins = [
-  'http://localhost:5000',
-  'https://raees-websites.netlify.app',
-  'https://raees-khan855.github.io'
-];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS not allowed for this origin'));
-    }
-  },
-  credentials: true,
+  origin: 'https://raees-websites.netlify.app', // ✅ No trailing slash
+  credentials: true, // If using cookies or sessions
 }));
 
 // Serve static files (e.g. uploaded images)
